@@ -257,6 +257,7 @@ The Fabric App is connected to the semantic model so it can reuse governed finan
 
 - Open the local `FinanceApp` project folder.
 - Keep the folder tree visible before opening individual files.
+- If useful, briefly point to `package.json` while mentioning the commands.
 
 ### **What is being shown**
 
@@ -264,17 +265,17 @@ A quick overview of how the app was created before looking at specific files.
 
 ### **What to say**
 
-> "At a high level, this app started as a Rayfin project. Rayfin created the application scaffold: the project structure, local development setup, deployment configuration and the pattern for defining SQL-backed entities."
+> "At a high level, this app started with the Rayfin CLI. I used the Rayfin create command to scaffold the project, for example `npm create @microsoft/rayfin@latest`. That creates the starting application structure: the local project, the React app shell, Rayfin configuration, local development setup and the pattern for defining SQL-backed entities."
 >
-> "From there, I added the finance scenario: source data, entity definitions, the semantic-model connection, and the React screens for KPIs, review queue and review drawer."
+> "After the scaffold was created, I used the normal project commands to work with it. `npm install` installs the dependencies, `npm run dev` runs the app locally while I am building it, and Rayfin deployment commands such as `npx rayfin up` are used to push the app and its supporting configuration into Fabric."
 >
-> "GitHub Copilot helped with the application code. The useful way to think about it is that I prompted Copilot with the business experience I wanted: a finance review app with governed KPIs, a transaction queue, a drawer, and write-back. Copilot helped generate and refine the React components and service logic, but Rayfin provided the Fabric App structure, deployment workflow and generated data access pattern."
+> "From there, I added the finance scenario: source data, entity definitions, the semantic-model connection, and the React screens for KPIs, review queue and review drawer. Rayfin gave me the Fabric App framework and deployment path. My work was describing the finance application I wanted and then filling in the scenario-specific code."
 >
-> "So Copilot helped accelerate the coding, while Rayfin and Fabric Apps provided the app framework and Fabric-native plumbing."
+> "GitHub Copilot helped with the coding once the Rayfin project existed. I prompted Copilot with the business experience I wanted: a finance review app with governed KPIs, a transaction queue, a drawer, and write-back. Copilot helped generate and refine the React components and service logic, while Rayfin provided the Fabric-native app structure and plumbing."
 
 ### **Summary**
 
-App 2 was scaffolded and deployed with Rayfin, while Copilot helped generate the finance-specific React and service code.
+App 2 was scaffolded, run and deployed using Rayfin commands, while Copilot helped generate the finance-specific application code.
 
 ## **Step 11 - Show the important App 2 project files**
 
@@ -295,19 +296,19 @@ The most important files that explain how the semantic-model-backed app is wired
 
 > "`package.json` is the project command centre. It defines scripts for local development, build, import and deployment."
 >
-> "`rayfin.yml` is created as part of the Rayfin project setup. It tells Rayfin how the local project maps to the Fabric App and supporting services, including deployment and app configuration."
+> "`rayfin.yml` is created as part of the Rayfin project setup. This is Rayfin-created configuration. It tells Rayfin how the local project maps to the Fabric App and supporting services, including deployment and app configuration."
 >
-> "`fabric.yaml` is especially important in this second app because it connects the app to Fabric assets such as the semantic model. This is where the project can say which workspace and which semantic model the app should use."
+> "`fabric.yaml` is also configuration rather than visual app code. In this second app, it is especially important because it connects the app to Fabric assets such as the semantic model. This is where the project can say which workspace and which semantic model the app should use."
 >
-> "The entity files are created or edited during the data-modelling stage. They define SQL-backed data objects. `FinanceReviewAction` is the important write-back entity because it stores the app's workflow state: notes, owners, statuses and next actions."
+> "The entity files belong to the Rayfin data-modelling side. Rayfin gives the pattern for these files, and I create or edit the entities to describe the data the app needs. `FinanceReviewAction` is the important write-back entity because it stores the workflow state: notes, owners, statuses and next actions."
 >
 > "`data/schema.ts` registers those entities into one application schema. That tells Rayfin these files belong to one complete app data model."
 >
-> "`src/services` shows the two data paths: semantic-model reads and Rayfin SQL write-back. `src/components` contains the visible pieces of the app, such as KPI cards, review queue and review drawer."
+> "The `src` folder is where Copilot was most useful after my prompting. The React components, such as KPI cards, review queue and review drawer, are the visible application experience. The service files also sit in `src`: one handles semantic-model reads, and another handles Rayfin SQL write-back. So the easiest split is: Rayfin created the app scaffold, configuration pattern and data-access framework; Copilot helped me produce the finance-specific React screens and service code."
 
 ### **Summary**
 
-The project files show how Rayfin configuration, Fabric semantic-model connection, SQL entities and React components fit together.
+The project files show the split between Rayfin-created app/configuration plumbing and Copilot-assisted finance-specific UI and service code.
 
 ## **Step 12 - Explain the full App 2 build flow**
 
