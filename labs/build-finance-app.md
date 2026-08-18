@@ -2,218 +2,389 @@
 
 ## Lab overview
 
-This lab builds the **Finance App**: a hybrid Fabric App that combines SQL-backed data, a Power BI/Fabric semantic model, DAX queries, and Rayfin workflow write-back.
+In this lab you build the **Finance App** from scratch.
 
-This is the richer demo app. Use it to show how Fabric Apps built with Rayfin can expose governed analytical data from a semantic model while also capturing operational review actions in app-owned SQL storage.
+This is the richer Fabric Apps demo. It shows how a Rayfin-built Fabric App can:
+
+1. store finance source data in the Fabric Apps managed SQL database
+1. feed that SQL data into a Power BI/Fabric semantic model
+1. query governed finance measures from the semantic model
+1. store finance review actions back into Rayfin-managed SQL
+
+The purpose is to show how a Fabric App is different from a Power BI report. The app does not just visualise finance data; it creates a workflow around governed finance metrics.
+
+> Presenter note:
+> This app demonstrates the **SQL plus semantic model plus write-back** pattern. The first app, `Renishaw Finance Control Tower`, demonstrates the simpler direct-SQL pattern.
 
 ## Business scenario
 
-Renishaw finance users need more than a dashboard. They need to:
+Renishaw finance users need to review cost-centre spend, supplier exposure, invoice risk, overdue amounts, working-capital impact, and follow-up actions.
 
-- understand trusted finance KPIs
-- identify high-risk or overdue items
-- analyse cost-centre budget pressure
-- review working-capital exposure
-- assign ownership and capture follow-up decisions
+The semantic model provides trusted finance measures. The Rayfin app provides the operational review experience:
 
-The semantic model provides the governed analytical layer. Rayfin provides the application and write-back workflow layer.
+- prioritised review queue
+- transaction review drawer
+- owner assignment
+- finance notes
+- next action
+- escalation flag
+- persisted workflow status
+
+The data is synthetic and illustrative. Do not imply that it is real Renishaw financial data.
 
 > Say this:
-> "A Power BI report is excellent for analysis. This Fabric App uses governed analytical measures, but adds the operational workflow finance users need when they must act on the numbers."
+> "A report is excellent for analysis. This app uses governed finance metrics, but adds the workflow layer finance users need when they must act on those metrics."
 
-## What the app demonstrates
+## What you will create
 
-| Capability | What the app shows |
-| --- | --- |
-| SQL star schema | Source tables for transactions, cost centres, suppliers, categories, and dates. |
-| Semantic model | Governed measures for spend, variance, risk, review, and working capital. |
-| DAX from React | The app queries the semantic model directly for analytical sections. |
-| Rayfin write-back | Review actions are persisted in `FinanceReviewActions`. |
-| App versus report | The app adds queue prioritisation, notes, owner assignment, status, and escalation flags. |
+1. A new Fabric App item called `FinanceApp`.
+1. A local Rayfin project from the blank template.
+1. Five SQL-backed analytical source entities:
+   - `DimCostCentre`
+   - `DimSupplier`
+   - `DimCategory`
+   - `DimDate`
+   - `FactFinanceTransaction`
+1. One writable workflow entity:
+   - `FinanceReviewAction`
+1. CSV files in the app project's `data` folder.
+1. An import process that loads those CSV files into the SQL database.
+1. A semantic model called `Renishaw Finance Control Semantic Model`.
+1. A React app that queries the semantic model and writes review actions through Rayfin.
 
 ## Architecture summary
 
 ```text
-CSV fixtures
-    |
-    v
-SQL migration
-    |
-    v
-Fabric SQL source tables
-    |
-    v
-Import semantic model
-    |
-    v
-DAX queries through Fabric app host
-    |
-    v
-React finance app
+CSV files in data folder
+        |
+        v
+CSV import script
+        |
+        v
+Fabric Apps managed SQL database
+        |
+        v
+Power BI/Fabric semantic model
+        |
+        v
+DAX queries from React app
+        |
+        v
+Finance App analytical UI
 
-React review drawer
-    |
-    v
+Review drawer
+        |
+        v
 Rayfin typed data API
-    |
-    v
-FinanceReviewActions SQL table
+        |
+        v
+FinanceReviewAction SQL table
 ```
 
 Important:
 
-- The semantic model is read-only from the app perspective.
-- Review workflow state is stored separately in Rayfin SQL.
-- SQL source changes require a semantic model refresh before DAX sees the changes.
-- Review action writes do not require a semantic model refresh.
+- SQL source data is loaded from CSV.
+- The semantic model imports from SQL.
+- Analytical measures live in the semantic model.
+- Review workflow state lives in Rayfin SQL.
+- The app does not write back to the semantic model.
 
 ## Prerequisites
 
-Before starting, confirm:
+Before starting, confirm you have:
 
-- You have access to the `Renishaw-FabricApps` Fabric workspace.
-- Fabric Apps are enabled in the tenant.
-- You have permission to deploy Fabric Apps.
-- You have permission to deploy or update semantic models.
-- Node.js is installed.
-- You can authenticate with Rayfin/Fabric CLI tooling.
-- You have the `FinanceApp` repository.
+- A Fabric workspace assigned to capacity.
+- Fabric Apps enabled in the tenant.
+- Permission to create Fabric App items.
+- Permission to create or deploy a semantic model.
+- Node.js installed.
+- Visual Studio Code or another editor.
+- Access to the Rayfin CLI through `npm create @microsoft/rayfin@latest`.
 
-> CHECK BEFORE DELIVERY:
-> This app deliberately refuses to run outside the Fabric iframe because semantic-model access depends on the Fabric app host. Test it from the deployed Fabric App URL, not only localhost.
+Recommended names:
 
-## Required repo files
-
-The app should contain these key files or equivalents:
-
-| File or folder | Purpose |
-| --- | --- |
-| `rayfin.yml` | Fabric Apps backend, auth, SQL entities, and hosting configuration. |
-| `fabric.yaml` | Semantic-model alias configuration, including alias `finance`. |
-| `data/` | Rayfin entity definitions. |
-| `data_app_semantic_model/` | CSV fixtures, migration script, deployment assets, and TMDL model definition. |
-| `finance/` | Semantic model / DAX query assets identified in the audit. |
-| `components/` | React app components for KPIs, queue, cost centres, and review drawer. |
-| `fabric-client.ts` | Fabric semantic-model query client setup. |
-| `use-review-actions.ts` | Rayfin read/write hook for review workflow actions. |
-| `priority.ts` | Client-side queue priority scoring. |
-| `README.md` | Current app runbook. |
-
-> CHECK BEFORE DELIVERY:
-> File paths may differ by project structure. Search for `SemanticModelMessageClient`, `FinanceReviewAction`, `priority.ts`, and `fabric.yaml` if needed.
-
-## Required Fabric workspace and capacity assumptions
-
-| Item | Recommended value |
+| Item | Name |
 | --- | --- |
 | Fabric workspace | `Renishaw-FabricApps` |
 | Fabric App item | `FinanceApp` |
+| Local project folder | `finance-app` |
 | Semantic model | `Renishaw Finance Control Semantic Model` |
 | Semantic model alias | `finance` |
-| App purpose | Semantic-model-backed finance workflow app |
-| Data type | Synthetic finance demo data |
-
-## Required Rayfin/Fabric Apps setup
-
-Open `rayfin.yml` and confirm:
-
-1. Fabric auth is enabled.
-1. SQL data service is enabled.
-1. Static hosting is enabled.
-1. The deployed Fabric App item details are populated after deployment.
-
-Open `fabric.yaml` and confirm:
-
-1. The semantic model alias is `finance`.
-1. The alias points to the deployed semantic model.
-1. Workspace/model identifiers match the `Renishaw-FabricApps` deployment.
 
 > CHECK BEFORE DELIVERY:
-> Hardcoded workspace, database, or semantic-model IDs reduce portability. Confirm they point to your live demo workspace before delivery.
+> The semantic-model query path depends on the deployed Fabric App running inside Fabric. Test the final app from the Fabric App URL, not only from localhost.
 
-## Required data setup
+## Step 1 - Create the Fabric App item
 
-The app uses five analytical source entities and one writable workflow entity.
+1. Open [Fabric](https://app.fabric.microsoft.com).
+1. Go to the workspace:
 
-### Read-only analytical source entities
+   ```text
+   Renishaw-FabricApps
+   ```
 
-| Entity | Purpose |
-| --- | --- |
-| `DimCategory` | Spend classification. |
-| `DimCostCentre` | Finance owner, budget, tolerance, and working-capital priority. |
-| `DimDate` | Calendar table. |
-| `DimSupplier` | Supplier classification. |
-| `FactFinanceTransaction` | Analytical transaction fact table. |
+1. Select **New item**.
+1. Search for **App**.
+1. Select **App**.
+1. Name it:
 
-These are seeded from deterministic CSV fixtures and feed the semantic model.
+   ```text
+   FinanceApp
+   ```
 
-### Writable workflow entity
+1. Select **Create**.
 
-| Entity | Purpose |
-| --- | --- |
-| `FinanceReviewAction` | Stores review owner, status, notes, next action, escalation flag, and timestamps. |
+> Say this:
+> "This creates the Fabric App item. Rayfin is what we use to build and deploy the app, but the running app is a Fabric item."
 
-> Presenter note:
-> This split is central to the demo. Analytics come from the semantic model. Workflow decisions are stored in the app database.
+## Step 2 - Create the local Rayfin project
 
-## Step-by-step build instructions
+Choose the parent folder where you want the local project.
 
-### Step 1 - Open the Finance App repository
-
-In a terminal:
+Example:
 
 ```bash
-cd "<path to FinanceApp>"
+cd "C:\Users\<your user>\Documents"
+```
+
+Run:
+
+```bash
+npm create @microsoft/rayfin@latest -- "FinanceApp" --template blank --workspace "Renishaw-FabricApps"
+```
+
+Open the generated project folder:
+
+```bash
+cd "FinanceApp"
 code .
 ```
 
-Confirm the app identity:
-
-```bash
-dir
-```
-
-Look for:
-
-- `rayfin.yml`
-- `fabric.yaml`
-- `package.json`
-- `data_app_semantic_model`
-- `components`
-
-### Step 2 - Install dependencies
-
-Run:
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-Then run:
+Run the blank app:
 
 ```bash
-npm run build
+npm run dev
 ```
 
+Confirm the blank app loads locally.
+
 > CHECK BEFORE DELIVERY:
-> If the build script name differs, inspect `package.json` and use the app's actual build script.
+> If the scaffold creates a differently named folder, use that folder. All remaining commands should run from the project root.
 
-### Step 3 - Review the Rayfin entities
+## Step 3 - Add CSV files to the app project's data folder
 
-Open the `data/` folder.
+In the app project, create:
 
-Confirm that:
+```text
+data/import
+```
 
-1. The five source entities exist.
-1. The source entities use read-only authenticated access.
-1. `FinanceReviewAction` exists.
-1. `FinanceReviewAction` supports authenticated create/update/read.
-1. All entities are registered in the Rayfin schema.
+Copy these CSV files from this lab repository into `data/import`:
 
-> Say this:
-> "The app protects the analytical source data as read-only and uses a separate workflow entity for finance review state."
+```text
+data/finance_app_semantic_model/dim_cost_centre.csv
+data/finance_app_semantic_model/dim_supplier.csv
+data/finance_app_semantic_model/dim_category.csv
+data/finance_app_semantic_model/dim_date.csv
+data/finance_app_semantic_model/fact_finance_transaction.csv
+```
 
-### Step 4 - Apply or deploy the Rayfin SQL schema
+Your app project should now contain:
+
+```text
+FinanceApp
+  data
+    import
+      dim_cost_centre.csv
+      dim_supplier.csv
+      dim_category.csv
+      dim_date.csv
+      fact_finance_transaction.csv
+```
+
+> Presenter note:
+> This is the source data for the semantic-model demo. We are not assuming the user already has local CSVs; the lab repository provides them.
+
+## Step 4 - Create the Rayfin analytical entities
+
+Use the entity folder created by your scaffold. It is usually:
+
+```text
+data
+```
+
+If your scaffold uses:
+
+```text
+rayfin/data
+```
+
+use that folder instead.
+
+### Create `DimCostCentre.ts`
+
+```typescript
+import { decimal, entity, role, text, uuid } from '@microsoft/rayfin-core';
+
+@entity()
+@role('authenticated', 'read')
+export class DimCostCentre {
+  @uuid() id!: string;
+  @text({ unique: true }) costCentreKey!: string;
+  @text() costCentre!: string;
+  @text() financeOwner!: string;
+  @text() businessArea!: string;
+  @decimal() monthlyBudgetGbp!: number;
+  @decimal() quarterlyBudgetGbp!: number;
+  @decimal() riskToleranceGbp!: number;
+  @text() workingCapitalPriority!: string;
+}
+```
+
+### Create `DimSupplier.ts`
+
+```typescript
+import { boolean, entity, role, text, uuid } from '@microsoft/rayfin-core';
+
+@entity()
+@role('authenticated', 'read')
+export class DimSupplier {
+  @uuid() id!: string;
+  @text({ unique: true }) supplierKey!: string;
+  @text() supplier!: string;
+  @text() supplierType!: string;
+  @text() country!: string;
+  @boolean() strategicSupplierFlag!: boolean;
+}
+```
+
+### Create `DimCategory.ts`
+
+```typescript
+import { boolean, entity, role, text, uuid } from '@microsoft/rayfin-core';
+
+@entity()
+@role('authenticated', 'read')
+export class DimCategory {
+  @uuid() id!: string;
+  @text({ unique: true }) categoryKey!: string;
+  @text() category!: string;
+  @text() categoryGroup!: string;
+  @boolean() controllableSpendFlag!: boolean;
+}
+```
+
+### Create `DimDate.ts`
+
+```typescript
+import { boolean, date, entity, int, role, text, uuid } from '@microsoft/rayfin-core';
+
+@entity()
+@role('authenticated', 'read')
+export class DimDate {
+  @uuid() id!: string;
+  @date() date!: Date;
+  @int() year!: number;
+  @text() quarter!: string;
+  @int() monthNumber!: number;
+  @text() monthName!: string;
+  @int() monthSort!: number;
+  @int() weekNumber!: number;
+  @boolean() isMonthEnd!: boolean;
+}
+```
+
+### Create `FactFinanceTransaction.ts`
+
+```typescript
+import { boolean, date, decimal, entity, int, role, text, uuid } from '@microsoft/rayfin-core';
+
+@entity()
+@role('authenticated', 'read')
+export class FactFinanceTransaction {
+  @uuid() id!: string;
+  @text({ unique: true }) transactionId!: string;
+  @text() transactionType!: string;
+  @text() costCentreKey!: string;
+  @text() supplierKey!: string;
+  @text() categoryKey!: string;
+  @date() invoiceDate!: Date;
+  @date() dueDate!: Date;
+  @text() forecastMonth!: string;
+  @decimal() amountGbp!: number;
+  @text() status!: string;
+  @text() riskLevel!: string;
+  @text() varianceDriver!: string;
+  @int() paymentTermsDays!: number;
+  @boolean() isCapex!: boolean;
+  @boolean() isWorkingCapitalImpact!: boolean;
+  @text() commentary!: string;
+}
+```
+
+### Create `FinanceReviewAction.ts`
+
+```typescript
+import { boolean, date, entity, role, set, text, uuid } from '@microsoft/rayfin-core';
+
+@entity()
+@role('authenticated', '*')
+export class FinanceReviewAction {
+  @uuid() id!: string;
+  @text({ unique: true }) transactionId!: string;
+  @text({ optional: true }) assignedOwner?: string;
+  @set('Unresolved', 'In Review', 'Reviewed', 'Escalated') reviewStatus!:
+    | 'Unresolved'
+    | 'In Review'
+    | 'Reviewed'
+    | 'Escalated';
+  @text({ optional: true }) financeNote?: string;
+  @text({ optional: true }) nextAction?: string;
+  @boolean({ default: false }) escalated!: boolean;
+  @date() updatedAt!: Date;
+}
+```
+
+> Presenter note:
+> The first five entities are read-only source data. `FinanceReviewAction` is the write-back entity.
+
+## Step 5 - Register the entities
+
+Open or create:
+
+```text
+data/schema.ts
+```
+
+Add:
+
+```typescript
+import type { DimCategory } from './DimCategory.js';
+import type { DimCostCentre } from './DimCostCentre.js';
+import type { DimDate } from './DimDate.js';
+import type { DimSupplier } from './DimSupplier.js';
+import type { FactFinanceTransaction } from './FactFinanceTransaction.js';
+import type { FinanceReviewAction } from './FinanceReviewAction.js';
+
+export type AppSchema = {
+  DimCategory: DimCategory;
+  DimCostCentre: DimCostCentre;
+  DimDate: DimDate;
+  DimSupplier: DimSupplier;
+  FactFinanceTransaction: FactFinanceTransaction;
+  FinanceReviewAction: FinanceReviewAction;
+};
+```
+
+If your scaffold already has a schema type, add these entities to the existing type instead of creating a second one.
+
+## Step 6 - Apply the SQL schema
 
 Run:
 
@@ -221,188 +392,480 @@ Run:
 npx rayfin up db apply
 ```
 
-If this is a first deployment, run:
+If this is the first deployment and the remote app is not initialised, run:
 
 ```bash
 npx rayfin up
 ```
 
-What to check:
+Then run:
 
-- SQL child service exists.
-- The analytical tables exist.
-- `FinanceReviewActions` exists.
-- The app deploys without schema errors.
-
-### Step 5 - Seed the SQL source tables
-
-Use the migration assets under:
-
-```text
-data_app_semantic_model/
+```bash
+npx rayfin up db apply
 ```
 
-The audit identified deterministic CSV fixtures and a transactional migration script.
+Check in Fabric:
 
-Expected migration script:
-
-```text
-migrate-csv-to-sql.mjs
-```
-
-Run the package script that calls the migration.
+1. Open the `FinanceApp` Fabric App item.
+1. Open the SQL database child service.
+1. Confirm the source tables and `FinanceReviewActions` table exist.
 
 > CHECK BEFORE DELIVERY:
-> Inspect `package.json` for the exact command. It may be named differently, for example `npm run migrate`, `npm run seed`, or `npm run data:load`.
+> Rayfin-generated physical SQL table names may differ from entity class names. Use the SQL object explorer to confirm exact names.
 
-After running the migration, validate the SQL source tables contain:
+## Step 7 - Import the CSV files into the SQL database
 
-- categories
-- cost centres
-- dates
-- suppliers
-- finance transactions
+The recommended lab approach is to import CSVs through a script that calls the Rayfin generated data API. This keeps the import aligned with the app entity model and avoids manually editing SQL tables.
 
-Expected fixture scale from the audit:
+Install a CSV parser:
 
-| Table | Expected shape |
+```bash
+npm install --save-dev csv-parse tsx
+```
+
+Create:
+
+```text
+scripts/importFinanceCsv.ts
+```
+
+The import script should:
+
+1. Read the five CSV files from `data/import`.
+1. Insert dimension rows first.
+1. Insert fact rows after dimensions.
+1. Check unique keys before inserting so it can be safely re-run.
+1. Print inserted and skipped counts.
+
+Use this mapping:
+
+| CSV file | Entity | Business key to check before insert |
+| --- | --- | --- |
+| `dim_cost_centre.csv` | `DimCostCentre` | `costCentreKey` |
+| `dim_supplier.csv` | `DimSupplier` | `supplierKey` |
+| `dim_category.csv` | `DimCategory` | `categoryKey` |
+| `dim_date.csv` | `DimDate` | `date` |
+| `fact_finance_transaction.csv` | `FactFinanceTransaction` | `transactionId` |
+
+The CSV files use snake_case column names. The Rayfin entities use camelCase field names. Map them explicitly:
+
+| CSV column | Entity field |
 | --- | --- |
-| Categories | around 15 rows |
-| Cost centres | around 10 rows |
-| Dates | 2026 calendar |
-| Suppliers | around 25 rows |
-| Transactions | around 210 rows |
+| `cost_centre_key` | `costCentreKey` |
+| `cost_centre` | `costCentre` |
+| `finance_owner` | `financeOwner` |
+| `business_area` | `businessArea` |
+| `monthly_budget_gbp` | `monthlyBudgetGbp` |
+| `quarterly_budget_gbp` | `quarterlyBudgetGbp` |
+| `risk_tolerance_gbp` | `riskToleranceGbp` |
+| `working_capital_priority` | `workingCapitalPriority` |
+| `supplier_key` | `supplierKey` |
+| `supplier_type` | `supplierType` |
+| `strategic_supplier_flag` | `strategicSupplierFlag` |
+| `category_key` | `categoryKey` |
+| `category_group` | `categoryGroup` |
+| `controllable_spend_flag` | `controllableSpendFlag` |
+| `month_number` | `monthNumber` |
+| `month_name` | `monthName` |
+| `month_sort` | `monthSort` |
+| `week_number` | `weekNumber` |
+| `is_month_end` | `isMonthEnd` |
+| `transaction_id` | `transactionId` |
+| `transaction_type` | `transactionType` |
+| `invoice_date` | `invoiceDate` |
+| `due_date` | `dueDate` |
+| `forecast_month` | `forecastMonth` |
+| `amount_gbp` | `amountGbp` |
+| `risk_level` | `riskLevel` |
+| `variance_driver` | `varianceDriver` |
+| `payment_terms_days` | `paymentTermsDays` |
+| `is_capex` | `isCapex` |
+| `is_working_capital_impact` | `isWorkingCapitalImpact` |
 
-### Step 6 - Deploy or refresh the semantic model
+Implementation pattern:
 
-Open the semantic model deployment assets under:
+```typescript
+import fs from 'node:fs';
+import path from 'node:path';
+import { parse } from 'csv-parse/sync';
+import { client } from '../src/rayfinClient';
 
-```text
-data_app_semantic_model/
-finance/
+function readCsv(fileName: string) {
+  const filePath = path.join(process.cwd(), 'data', 'import', fileName);
+  const content = fs.readFileSync(filePath, 'utf8');
+  return parse(content, { columns: true, skip_empty_lines: true });
+}
+
+function toBoolean(value: string) {
+  return value.toLowerCase() === 'true';
+}
+
+async function insertIfMissing(
+  entity: any,
+  keyField: string,
+  keyValue: string | number | Date,
+  createPayload: Record<string, unknown>
+) {
+  const existing = await entity
+    .select(['id', keyField])
+    .where({ [keyField]: { eq: keyValue } })
+    .first(1)
+    .execute();
+
+  if (existing.length > 0) {
+    return 'skipped';
+  }
+
+  await entity.create(createPayload);
+  return 'inserted';
+}
+
+async function main() {
+  const costCentres = readCsv('dim_cost_centre.csv');
+  const suppliers = readCsv('dim_supplier.csv');
+  const categories = readCsv('dim_category.csv');
+  const dates = readCsv('dim_date.csv');
+  const transactions = readCsv('fact_finance_transaction.csv');
+
+  for (const row of costCentres) {
+    await insertIfMissing(client.data.DimCostCentre, 'costCentreKey', row.cost_centre_key, {
+      costCentreKey: row.cost_centre_key,
+      costCentre: row.cost_centre,
+      financeOwner: row.finance_owner,
+      businessArea: row.business_area,
+      monthlyBudgetGbp: Number(row.monthly_budget_gbp),
+      quarterlyBudgetGbp: Number(row.quarterly_budget_gbp),
+      riskToleranceGbp: Number(row.risk_tolerance_gbp),
+      workingCapitalPriority: row.working_capital_priority,
+    });
+  }
+
+  for (const row of suppliers) {
+    await insertIfMissing(client.data.DimSupplier, 'supplierKey', row.supplier_key, {
+      supplierKey: row.supplier_key,
+      supplier: row.supplier,
+      supplierType: row.supplier_type,
+      country: row.country,
+      strategicSupplierFlag: toBoolean(row.strategic_supplier_flag),
+    });
+  }
+
+  for (const row of categories) {
+    await insertIfMissing(client.data.DimCategory, 'categoryKey', row.category_key, {
+      categoryKey: row.category_key,
+      category: row.category,
+      categoryGroup: row.category_group,
+      controllableSpendFlag: toBoolean(row.controllable_spend_flag),
+    });
+  }
+
+  for (const row of dates) {
+    await insertIfMissing(client.data.DimDate, 'date', new Date(row.date), {
+      date: new Date(row.date),
+      year: Number(row.year),
+      quarter: row.quarter,
+      monthNumber: Number(row.month_number),
+      monthName: row.month_name,
+      monthSort: Number(row.month_sort),
+      weekNumber: Number(row.week_number),
+      isMonthEnd: toBoolean(row.is_month_end),
+    });
+  }
+
+  for (const row of transactions) {
+    await insertIfMissing(
+      client.data.FactFinanceTransaction,
+      'transactionId',
+      row.transaction_id,
+      {
+        transactionId: row.transaction_id,
+        transactionType: row.transaction_type,
+        costCentreKey: row.cost_centre_key,
+        supplierKey: row.supplier_key,
+        categoryKey: row.category_key,
+        invoiceDate: new Date(row.invoice_date),
+        dueDate: new Date(row.due_date),
+        forecastMonth: row.forecast_month,
+        amountGbp: Number(row.amount_gbp),
+        status: row.status,
+        riskLevel: row.risk_level,
+        varianceDriver: row.variance_driver,
+        paymentTermsDays: Number(row.payment_terms_days),
+        isCapex: toBoolean(row.is_capex),
+        isWorkingCapitalImpact: toBoolean(row.is_working_capital_impact),
+        commentary: row.commentary,
+      }
+    );
+  }
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
 ```
-
-The semantic model should be:
-
-```text
-Renishaw Finance Control Semantic Model
-```
-
-Confirm the model is an Import-mode star schema with:
-
-- one transaction fact table
-- four dimensions
-- relationships from fact to cost centre, supplier, category, and invoice date
-- 18 explicit measures
-
-After SQL data is loaded, refresh the semantic model.
 
 > CHECK BEFORE DELIVERY:
-> The app's analytical sections will not reflect SQL fixture changes until the Import semantic model refresh completes.
+> Replace `../src/rayfinClient` with the actual Rayfin client helper generated by your project. If the blank project does not have one, create it using the Rayfin client setup from the scaffold. Do not hardcode secrets.
 
-### Step 7 - Validate semantic model measures
+Add this script to `package.json`:
 
-Open the semantic model in Fabric or the supported model authoring tool.
+```json
+{
+  "scripts": {
+    "import:finance-csv": "tsx scripts/importFinanceCsv.ts"
+  }
+}
+```
 
-Check measure groups:
+Run:
 
-| Folder | Example measures |
+```bash
+npm run import:finance-csv
+```
+
+Run it a second time to confirm it skips existing rows.
+
+Validate in the SQL database:
+
+```sql
+SELECT COUNT(*) FROM DimCostCentres;
+SELECT COUNT(*) FROM DimSuppliers;
+SELECT COUNT(*) FROM DimCategories;
+SELECT COUNT(*) FROM DimDates;
+SELECT COUNT(*) FROM FactFinanceTransactions;
+```
+
+> CHECK BEFORE DELIVERY:
+> Adjust table names to the actual physical names generated by Rayfin.
+
+## Step 8 - Create the semantic model
+
+Create a new semantic model in Fabric:
+
+1. Open the `Renishaw-FabricApps` workspace.
+1. Select **New item**.
+1. Create a semantic model using the SQL database child service as the source.
+1. Name it:
+
+   ```text
+   Renishaw Finance Control Semantic Model
+   ```
+
+1. Add the five analytical source tables:
+   - `DimCostCentre`
+   - `DimSupplier`
+   - `DimCategory`
+   - `DimDate`
+   - `FactFinanceTransaction`
+
+Do not add `FinanceReviewAction` to the semantic model for this demo. It is app workflow state, not governed finance source data.
+
+> CHECK BEFORE DELIVERY:
+> The exact Fabric UI path for creating a semantic model from the Fabric Apps SQL database may vary. If the UI cannot create it directly, use the supported TMDL or Fabric/Power BI deployment path available in your environment.
+
+## Step 9 - Configure relationships
+
+In the semantic model, configure these relationships:
+
+| From | To |
 | --- | --- |
-| Finance Overview | Total Spend, Forecast Recoveries, Net Forecast Impact |
-| Risk and Review | High Risk Item Count, Review Item Count, Pending Item Count |
-| Budget and Variance | Monthly Budget, Variance to Monthly Budget |
-| Working Capital | Working Capital Exposure, Overdue Amount, Due in Next 14 Days |
+| `FactFinanceTransaction[costCentreKey]` | `DimCostCentre[costCentreKey]` |
+| `FactFinanceTransaction[supplierKey]` | `DimSupplier[supplierKey]` |
+| `FactFinanceTransaction[categoryKey]` | `DimCategory[categoryKey]` |
+| `FactFinanceTransaction[invoiceDate]` | `DimDate[date]` |
+
+Use single-direction filtering from dimension to fact.
+
+## Step 10 - Create semantic model measures
+
+Create these measures:
+
+```DAX
+Total Spend GBP =
+CALCULATE (
+    SUM ( FactFinanceTransaction[amountGbp] ),
+    FactFinanceTransaction[amountGbp] > 0
+)
+
+Forecast Recoveries GBP =
+CALCULATE (
+    SUM ( FactFinanceTransaction[amountGbp] ),
+    FactFinanceTransaction[amountGbp] < 0
+)
+
+Net Forecast Impact GBP =
+SUM ( FactFinanceTransaction[amountGbp] )
+
+High Risk Item Count =
+CALCULATE (
+    COUNTROWS ( FactFinanceTransaction ),
+    FactFinanceTransaction[riskLevel] = "High"
+)
+
+Review Item Count =
+CALCULATE (
+    COUNTROWS ( FactFinanceTransaction ),
+    FactFinanceTransaction[status] = "Review"
+)
+
+Pending Item Count =
+CALCULATE (
+    COUNTROWS ( FactFinanceTransaction ),
+    FactFinanceTransaction[status] = "Pending"
+)
+
+Approved Item Count =
+CALCULATE (
+    COUNTROWS ( FactFinanceTransaction ),
+    FactFinanceTransaction[status] = "Approved"
+)
+
+Monthly Budget GBP =
+SUM ( DimCostCentre[monthlyBudgetGbp] )
+
+Variance to Monthly Budget GBP =
+[Total Spend GBP] - [Monthly Budget GBP]
+
+Working Capital Exposure GBP =
+CALCULATE (
+    SUM ( FactFinanceTransaction[amountGbp] ),
+    FactFinanceTransaction[isWorkingCapitalImpact] = TRUE ()
+)
+
+Capex Item Count =
+CALCULATE (
+    COUNTROWS ( FactFinanceTransaction ),
+    FactFinanceTransaction[isCapex] = TRUE ()
+)
+```
+
+Format GBP measures as currency and count measures as whole numbers.
 
 > Presenter note:
-> Do not describe these as React calculations. In this app, these are semantic-model measures queried by DAX.
+> These measures are the reason the semantic model matters. The app and any report can reuse the same finance definitions.
 
-### Step 8 - Review semantic-model query code
+## Step 11 - Refresh and validate the semantic model
 
-Search for:
+Refresh the semantic model.
+
+Validate:
+
+- transaction rows are visible
+- relationships work
+- measures return values
+- cost-centre filters affect fact measures
+
+> CHECK BEFORE DELIVERY:
+> SQL imports do not automatically change Import-mode model results. Refresh the semantic model after importing CSV data.
+
+## Step 12 - Configure the app semantic model alias
+
+Create or update:
 
 ```text
-SemanticModelMessageClient
-EmbedFabricApiProxy
-FabricClient
+fabric.yaml
 ```
 
-Open the semantic model client file, identified in the audit as:
+Configure an alias:
+
+```yaml
+semanticModels:
+  finance:
+    workspace: Renishaw-FabricApps
+    item: Renishaw Finance Control Semantic Model
+```
+
+> CHECK BEFORE DELIVERY:
+> Use the exact alias syntax supported by your Rayfin/Fabric Apps SDK version. The audited app used alias `finance`.
+
+## Step 13 - Build the frontend app
+
+The frontend should not look like a Power BI report. It should look like an operational finance review application.
+
+Create these sections:
+
+| Section | Source | Purpose |
+| --- | --- | --- |
+| Finance Command Centre | DAX measures | Show governed KPI cards. |
+| Prioritised Review Queue | DAX transaction query + TypeScript priority score | Show items needing action. |
+| Cost Centre Focus | DAX cost-centre query | Let users focus by cost centre. |
+| Review Drawer | Semantic row + Rayfin workflow state | Capture owner, note, status, next action, escalation. |
+| Why this is not just a report | Static explanatory panel | Make the demo message explicit. |
+
+KPI cards should include:
+
+- Total Spend GBP
+- Net Forecast Impact GBP
+- High Risk Item Count
+- Review Item Count
+- Working Capital Exposure GBP
+- Capex Item Count
+
+The review queue should show:
+
+- Transaction ID
+- Cost centre
+- Supplier
+- Category
+- Amount
+- Risk level
+- Status
+- Due date
+- Variance driver
+- Suggested action
+
+## Step 14 - Query the semantic model from the app
+
+Use the Fabric Apps semantic-model query path supported by your SDK.
+
+The audited app used:
+
+- `SemanticModelMessageClient`
+- `EmbedFabricApiProxy`
+- `FabricClient`
+- three DAX queries:
+  - KPI measures
+  - transaction rows
+  - cost-centre summaries
+
+> CHECK BEFORE DELIVERY:
+> If your SDK version uses different classes, follow the generated examples from your project. Do not fake semantic-model results silently for the customer demo.
+
+The important behavior is:
 
 ```text
-fabric-client.ts
+React app -> semantic model alias finance -> DAX query -> governed result set
 ```
 
-Confirm the app issues DAX queries for:
+## Step 15 - Add Rayfin workflow write-back
 
-1. KPI measures
-1. denormalised transaction rows
-1. cost-centre summary rows
+Use `FinanceReviewAction` for app-owned workflow state.
+
+The review drawer should allow:
+
+- assign owner
+- update review status
+- save finance note
+- set next action
+- mark escalation flag
+
+These actions write only to:
+
+```text
+FinanceReviewAction
+```
+
+They must not update:
+
+- the semantic model
+- the source fact table
+- source dimensions
 
 > Say this:
-> "The app is not embedding a Power BI report. It is querying the governed semantic model and using those results inside a custom finance workflow."
+> "The semantic model remains the trusted analytical layer. Rayfin stores what finance decides to do next."
 
-### Step 9 - Review the frontend components
-
-Open the React components folder.
-
-Confirm the app has:
-
-- KPI cards
-- prioritised review queue
-- search and filters
-- cost-centre summary/focus
-- architecture explainer
-- transaction review drawer
-- theme toggle
-
-Open:
-
-```text
-priority.ts
-```
-
-Confirm queue ranking is client-side logic using:
-
-- risk
-- source status
-- due date
-- value
-- capex flag
-- working-capital impact flag
-- workflow status
-
-> Presenter note:
-> Priority score is app logic, not a semantic-model measure.
-
-### Step 10 - Review workflow write-back
-
-Open:
-
-```text
-use-review-actions.ts
-```
-
-Confirm the app:
-
-1. Reads existing `FinanceReviewAction` rows.
-1. Matches actions to transactions by `transactionId`.
-1. Creates or updates review rows.
-1. Does not write back to the semantic model.
-1. Does not update source transaction rows.
-
-Workflow fields include:
-
-- assigned owner
-- review status
-- finance note
-- next action
-- escalation flag
-- updated timestamp
-
-> Say this:
-> "The semantic model remains the trusted analytical layer. Rayfin captures what finance decides to do next."
-
-### Step 11 - Deploy the app
+## Step 16 - Deploy the Finance App
 
 Run:
 
@@ -410,97 +873,77 @@ Run:
 npx rayfin up
 ```
 
-After deployment:
+Then:
 
-1. Open the Fabric portal.
+1. Open Fabric.
 1. Open the `Renishaw-FabricApps` workspace.
-1. Open the `FinanceApp` Fabric App item.
-1. Copy/open the App URL.
-1. Confirm the app opens inside Fabric.
-
-> CHECK BEFORE DELIVERY:
-> This app may not run correctly outside Fabric because semantic-model proxy access depends on the Fabric iframe host.
-
-### Step 12 - Validate the customer demo flow
-
-In the deployed app:
-
+1. Open `FinanceApp`.
+1. Open the App URL.
 1. Confirm KPI cards load.
-1. Confirm review queue loads.
-1. Change status filter to `Any` if the default hides approved items.
-1. Search for a supplier or cost centre.
-1. Click a cost centre and confirm the queue focuses.
-1. Open a transaction review drawer.
-1. Assign the item to yourself.
-1. Add a short note.
-1. Toggle escalation if appropriate.
-1. Save.
-1. Refresh the page and confirm the saved review action persists.
+1. Confirm the review queue loads.
+1. Save a review action.
+1. Refresh the app and confirm the review action persists.
 
-> CHECK BEFORE DELIVERY:
-> The audit found the fallback is in-memory, not durable session storage. Make sure Rayfin write-back is live before using save actions in the customer demo.
+## Validation checks
 
-## Semantic model setup/configuration explanation
+Before the customer demo:
 
-The semantic model exists to centralise finance logic.
-
-Instead of each app or report calculating spend, variance, risk counts, and working-capital exposure independently, the semantic model provides reusable measures.
-
-Finance questions supported:
-
-- What is total spend?
-- What is the net forecast impact?
-- Which items are high risk?
-- Which items are still in review?
-- Which cost centres are above budget?
-- What amount is overdue?
-- What is due in the next 14 days?
-- Which items create working-capital exposure?
-
-## How SQL feeds the semantic model
-
-1. CSV fixtures are loaded into SQL source tables.
-1. The semantic model imports those SQL tables.
-1. Relationships define the star schema.
-1. Measures calculate finance KPIs.
-1. The app queries the model with DAX.
-
-If SQL source rows change, refresh the semantic model before expecting the DAX-backed app sections to change.
-
-## How this differs from Renishaw Finance Control Tower
-
-| Area | Renishaw Finance Control Tower | Finance App |
-| --- | --- | --- |
-| Data read path | SQL directly through Rayfin typed client | SQL into semantic model, then DAX |
-| Calculations | React calculations | Semantic-model measures |
-| Data volume | Small seed set | Larger star-schema fixture set |
-| Write-back | No end-user write-back | Review workflow writes to `FinanceReviewActions` |
-| Best demo point | Simplicity of Fabric App + SQL | Governed analytics plus operational action |
+| Check | Expected result |
+| --- | --- |
+| SQL source tables populated | CSV rows imported successfully. |
+| Semantic model refreshed | KPI cards show values. |
+| Review queue visible | Transactions appear in the app. |
+| Cost-centre focus works | Clicking a cost centre filters/focuses the queue. |
+| Review write-back works | Notes/status persist after refresh. |
+| App opens from Fabric URL | Semantic-model proxy works. |
 
 ## Troubleshooting
 
 | Problem | Likely cause | Fix |
 | --- | --- | --- |
-| KPI cards do not load | App not running inside Fabric iframe or semantic alias issue | Open deployed Fabric App URL and check `fabric.yaml`. |
-| Queue is empty | Default filter hides rows or semantic model not refreshed | Switch status to `Any`; refresh semantic model. |
-| SQL rows loaded but app analytics unchanged | Import semantic model has stale data | Refresh the semantic model. |
-| Save action does not persist | Rayfin write-back unavailable | Check `FinanceReviewActions` entity and Rayfin API connectivity. |
-| Saved actions disappear after refresh | App fell back to in-memory state | Fix Rayfin write-back before customer demo. |
-| Escalation message overclaims automation | App only stores escalation flag | Say "marked for escalation," not "notification sent." |
-| Supplier field labelled incorrectly | Audit found a supplier type displayed as "Country" | Say "supplier type" or fix label before delivery. |
+| SQL tables are empty | CSV import not run | Run `npm run import:finance-csv`. |
+| CSV import duplicates rows | Missing key checks | Check by business keys before insert. |
+| Semantic model has no rows | Model not connected to SQL or not refreshed | Check source tables and refresh the model. |
+| KPI cards fail | Semantic alias or Fabric iframe issue | Open deployed Fabric App URL and check `fabric.yaml`. |
+| Queue is empty | Semantic query/filter issue | Confirm DAX query returns transaction rows. |
+| Review action does not persist | Rayfin write-back issue | Check `FinanceReviewAction` entity and API connectivity. |
+| App works locally but not in Fabric | Deployment/config issue | Re-run `npx rayfin up` and check app item settings. |
+
+## What the finance user is meant to do
+
+The finance user:
+
+1. Opens the Finance App.
+1. Reviews governed finance KPIs.
+1. Filters or searches the priority queue.
+1. Clicks a cost centre to focus the worklist.
+1. Opens a transaction.
+1. Assigns an owner.
+1. Adds a finance note.
+1. Sets a next action.
+1. Marks the item reviewed or escalated.
+
+This is the key difference from a report: the user acts on the insight and the app stores the action.
+
+## How this differs from Renishaw Finance Control Tower
+
+| Area | Renishaw Finance Control Tower | Finance App |
+| --- | --- | --- |
+| Source pattern | SQL directly to app | SQL to semantic model to app |
+| Measures | React calculations | Governed semantic-model measures |
+| Data volume | Small operational dataset | Star-schema analytical dataset |
+| Write-back | No end-user write-back | Review actions persisted in SQL |
+| Best message | Simple operational app | Governed analytics plus workflow |
 
 ## Final summary - what you have built
 
-You have built a hybrid Fabric App that demonstrates:
+You have built a Fabric App that uses:
 
-- SQL source data
-- a governed Import-mode semantic model
+- CSV source files in the app `data` folder
+- SQL import into the Fabric Apps managed database
+- a semantic model over the SQL source tables
 - DAX-backed analytical UI
-- Rayfin app-owned workflow write-back
-- finance review actions that persist in SQL
-
-Use this app to explain the advanced pattern:
+- Rayfin-managed workflow write-back
 
 > Say this:
-> "This app shows how Fabric Apps can sit between governed analytics and operational process. The semantic model explains the numbers; Rayfin lets finance users act on them."
-
+> "The Finance App shows why Fabric Apps are different from reports. The semantic model gives finance trusted metrics. Rayfin turns those metrics into an operational review workflow with write-back."

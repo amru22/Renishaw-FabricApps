@@ -1,0 +1,13 @@
+transaction_id,transaction_type,cost_centre_key,supplier_key,category_key,invoice_date,due_date,forecast_month,amount_gbp,status,risk_level,variance_driver,payment_terms_days,is_capex,is_working_capital_impact,commentary
+FIN-1001,Invoice,CC-1001,SUP-2001,CAT-3001,2026-07-02,2026-08-16,2026-08,58400,Approved,High,Expedited freight,45,false,true,Air freight used to protect committed customer delivery dates
+FIN-1002,Invoice,CC-1002,SUP-2002,CAT-3002,2026-07-03,2026-08-17,2026-08,73900,Approved,High,Energy price volatility,45,false,true,Electricity cost above plan after production ramp-up
+FIN-1003,Capex,CC-1003,SUP-2003,CAT-3003,2026-07-11,2026-09-10,2026-09,86500,Review,High,Capex approval threshold,60,true,true,Post-processing unit requested to reduce manual finishing queue
+FIN-1004,Accrual,CC-1004,SUP-2004,CAT-3004,2026-07-14,2026-08-28,2026-08,22300,Review,High,Temporary contractor cover,45,false,false,Short-term contractor cover for metrology service backlog
+FIN-1005,Invoice,CC-1005,SUP-2005,CAT-3005,2026-07-08,2026-08-22,2026-08,31780,Pending,Low,Normal tooling replenishment,45,false,false,Standard insert and tooling order for August production
+FIN-1006,Invoice,CC-1006,SUP-2006,CAT-3006,2026-07-01,2026-08-15,2026-08,46200,Approved,Medium,Usage above run rate,45,false,false,Cloud and collaboration services above previous quarter baseline
+FIN-1007,Invoice,CC-1002,SUP-2007,CAT-3007,2026-07-11,2026-08-25,2026-08,41200,Pending,Medium,Reactive maintenance,45,false,false,Reactive work on cleanroom environmental controls
+FIN-1008,Invoice,CC-1003,SUP-2008,CAT-3008,2026-07-09,2026-08-23,2026-08,18850,Pending,Low,Recurring platform subscription,45,false,false,Build preparation and simulation software renewal
+FIN-1009,Invoice,CC-1004,SUP-2009,CAT-3009,2026-07-05,2026-08-19,2026-08,27560,Approved,Medium,Service kit refresh,45,false,false,Replacement calibration artefacts for field service engineers
+FIN-1010,Invoice,CC-1001,SUP-2010,CAT-3010,2026-07-06,2026-08-20,2026-08,34650,Pending,Low,Standard inbound freight,45,false,true,Regular inbound shipment for production components
+FIN-1011,Forecast,CC-1001,SUP-2001,CAT-3001,2026-07-20,2026-08-31,2026-08,-42100,Approved,Low,Planned inventory reduction,30,false,true,Expected working capital benefit from slow-moving stock release
+FIN-1012,Forecast,CC-1003,SUP-2008,CAT-3008,2026-07-16,2026-08-30,2026-08,-22500,Approved,Low,Customer prototype recharge,30,false,false,Expected recharge against customer-funded prototype projects

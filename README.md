@@ -19,6 +19,12 @@ Renishaw-FabricApps/
   data/
     finance_app_budget_targets.csv
     finance_app_transactions.csv
+    finance_app_semantic_model/
+      dim_category.csv
+      dim_cost_centre.csv
+      dim_date.csv
+      dim_supplier.csv
+      fact_finance_transaction.csv
   labs/
     build-renishaw-finance-control-tower.md
     build-finance-app.md
@@ -34,5 +40,6 @@ Renishaw-FabricApps/
 | `labs/demo-talk-track.md` | 15-20 minute live demo script covering both apps. |
 | `data/finance_app_transactions.csv` | Synthetic finance transaction data for invoice, accrual, forecast, and capex examples. |
 | `data/finance_app_budget_targets.csv` | Synthetic monthly budget and risk tolerance data by cost centre. |
+| `data/finance_app_semantic_model/*.csv` | Star-schema CSV source files for the Finance App semantic-model lab. |
 
 All data is synthetic and for training/demo use only.

@@ -1,0 +1,11 @@
+category_key,category,category_group,controllable_spend_flag
+CAT-3001,Freight,Supply Chain,true
+CAT-3002,Energy,Facilities,false
+CAT-3003,Post-processing equipment,Capex,true
+CAT-3004,Contract labour,Services,true
+CAT-3005,Cutting tools,Manufacturing,true
+CAT-3006,Cloud services,IT,true
+CAT-3007,Facilities maintenance,Facilities,true
+CAT-3008,Software services,IT,true
+CAT-3009,Calibration equipment,Services,true
+CAT-3010,Ocean freight,Supply Chain,true

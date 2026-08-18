@@ -1,0 +1,7 @@
+cost_centre_key,cost_centre,finance_owner,business_area,monthly_budget_gbp,quarterly_budget_gbp,risk_tolerance_gbp,working_capital_priority
+CC-1001,Global Supply Chain,Oliver Chen,Operations,310000,930000,20000,Reduce expedited freight and premium logistics leakage
+CC-1002,Facilities and Energy,James Evans,Operations,220000,660000,18000,Separate energy volatility from controllable maintenance spend
+CC-1003,Additive Manufacturing,Noah Patel,Engineering,185000,555000,12000,Control prototype spend while maintaining innovation throughput
+CC-1004,Metrology Services,Grace Hughes,Services,138000,414000,8000,Keep service revenue enablement costs predictable
+CC-1005,Precision Machining,Amelia Stone,Manufacturing,245000,735000,15000,Protect supplier continuity for critical machining components
+CC-1006,Corporate IT,Freya Williams,Corporate,165000,495000,10000,Track software renewals and avoid duplicated licences

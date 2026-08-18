@@ -1,0 +1,11 @@
+supplier_key,supplier,supplier_type,country,strategic_supplier_flag
+SUP-2001,Kuehne Nagel,Logistics,Germany,true
+SUP-2002,National Grid,Utilities,United Kingdom,true
+SUP-2003,AM Solutions,Equipment,Germany,false
+SUP-2004,Field Service Partners,Contract labour,United Kingdom,false
+SUP-2005,Sandvik Coromant,Tooling,Sweden,true
+SUP-2006,Microsoft,Software,United States,true
+SUP-2007,CBRE,Facilities,United Kingdom,false
+SUP-2008,Materialise,Software,Belgium,false
+SUP-2009,Mitutoyo UK,Calibration,United Kingdom,true
+SUP-2010,Maersk,Logistics,Denmark,true
