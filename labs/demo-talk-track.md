@@ -107,63 +107,7 @@ React screen -> Rayfin data client / GraphQL -> Fabric API -> SQL database
 
 Write-back lets finance users save decisions and actions into the Fabric Apps SQL database.
 
-## **Step 5 - Show how App 1 was built in the local project**
-
-### **What to click**
-
-- Open the local `renishaw-finance-control-tower` project.
-- Point to `package.json`, `rayfin.yml`, the entity folder, `data/schema.ts`, `src`, and deployment files.
-
-### **What is being shown**
-
-The local Rayfin project structure behind the first app.
-
-### **What to say**
-
-> "`package.json` is the project command centre. It defines scripts for local development, build, seed and deployment."
->
-> "`rayfin.yml` tells Rayfin how this local project maps to Fabric: the app, services, authentication, deployment settings and SQL database configuration."
->
-> "The entity files define the business objects the app stores, such as finance transactions and budget targets. Instead of starting by manually creating SQL tables, the developer describes these objects in TypeScript."
->
-> "`data/schema.ts` registers the entities together. One entity describes one object; the schema describes the full application data model."
->
-> "`src` contains the React frontend: the screens, components and services that users interact with."
-
-### **Summary**
-
-The App 1 project combines configuration, entities, schema, React code and deployment settings.
-
-## **Step 6 - Explain entities, schema, SQL and generated APIs**
-
-### **What to click**
-
-- Open an entity file, such as `FinanceTransaction.ts`.
-- Open `data/schema.ts`.
-
-### **What is being shown**
-
-How Rayfin turns business definitions into SQL-backed API access.
-
-### **What to say**
-
-> "A data entity is a business object. If finance needs to track transactions, budget targets, forecasts or comments, each concept can become an entity."
->
-> "The entity defines the fields that object needs, such as amount, supplier, category, owner, status or due date. Rayfin can use those fields as a blueprint for SQL tables and columns."
->
-> "The schema brings the entities together into the complete application data model. Without the schema, the files are just separate TypeScript classes. With the schema, Rayfin knows they form one database design."
->
-> "Rayfin then exposes those entities through generated API access, often GraphQL-style. The React frontend calls the generated layer instead of connecting directly to SQL."
-
-```text
-React UI -> Generated API layer -> SQL tables from entities
-```
-
-### **Summary**
-
-Entities define business objects, the schema registers the model, and Rayfin generates SQL-backed API access.
-
-## **Step 7 - Show the SQL database behind App 1**
+## **Step 5 - Show the SQL database behind App 1**
 
 ### **What to click**
 
@@ -187,20 +131,23 @@ The physical SQL store that supports the first app.
 
 In App 1, the Fabric Apps SQL database is the system of record.
 
-## **Step 8 - Transition to App 2 and state the architecture change**
+## **Step 6 - Transition to App 2 and state the architecture change**
 
 ### **What to click**
 
 - Return to the workspace.
 - Open `FinanceApp`.
+- Pause on the landing page.
 
 ### **What is being shown**
 
-The move from direct SQL to a semantic-model-backed app.
+A finance analytics and review app showing finance transactions by supplier, category, date and cost centre, with governed KPIs and workflow actions.
 
 ### **What to say**
 
 > "Now the architecture changes. In the first app, SQL was the centre. In this second app, the semantic model is the analytical source."
+>
+> "This app is showing finance transaction data enriched with cost centre, supplier, category and date context. The point is not just to show spend, but to help finance users review risk, overdue exposure, working-capital impact and actions needed."
 >
 > "The SQL database still exists, but its role is different. It stores source data and workflow data. The semantic model provides the governed finance measures and calculations."
 >
@@ -208,9 +155,9 @@ The move from direct SQL to a semantic-model-backed app.
 
 ### **Summary**
 
-App 2 uses the semantic model for analytics and SQL for storage and workflow.
+App 2 uses the semantic model for governed finance analytics and SQL for storage and workflow.
 
-## **Step 9 - Walk through App 2 visuals and features**
+## **Step 7 - Walk through App 2 visuals and features**
 
 ### **What to click**
 
@@ -238,7 +185,7 @@ A richer finance app that combines governed analytics with workflow.
 
 App 2 combines semantic-model analytics with a finance workflow for review and follow-up.
 
-## **Step 10 - Demo App 2 write-back**
+## **Step 8 - Demo App 2 write-back**
 
 ### **What to click**
 
@@ -276,59 +223,93 @@ Write: React app -> Rayfin data API -> FinanceReviewAction SQL table
 
 App 2 reads analytics from the semantic model but writes review actions into SQL.
 
-## **Step 11 - Show the semantic model behind App 2**
+## **Step 9 - Show the semantic model behind App 2**
 
 ### **What to click**
 
 - Open `Renishaw Finance Control Semantic Model`.
 - Show tables, relationships and measures if available.
+- Mention the app connection configured in the project.
 
 ### **What is being shown**
 
-The governed analytical backend for the second app.
+The governed analytical backend that the Fabric App is connected to.
 
 ### **What to say**
 
-> "This semantic model is the main difference from App 1. A semantic model is not just storage; it is where data gets business meaning."
+> "This semantic model is the main difference from App 1. The Fabric App is connected to this model, which means the app can ask the model for governed analytical results instead of calculating everything itself."
 >
-> "It defines tables such as cost centres, suppliers, categories, dates and transactions. It also defines relationships so the model understands how those tables connect."
+> "The model defines tables such as cost centres, suppliers, categories, dates and transactions. It also defines relationships so the model understands how those tables connect."
 >
 > "The measures are the key finance definitions. They can calculate total spend, overdue amount, forecast impact, variance or working-capital exposure using DAX."
 >
-> "Because those measures live in the semantic model, the app can reuse the same trusted definitions as reports and other Fabric experiences."
+> "The connection matters because the app is not copying these calculations into React. At runtime, the app can query the semantic model, the model applies its relationships and measures, and the app receives the results to display in its own custom interface."
+>
+> "So the semantic model remains the governed analytical layer, and the Fabric App becomes the business workflow experience on top of it."
 
 ### **Summary**
 
-The semantic model is the governed finance definition layer for App 2.
+The Fabric App is connected to the semantic model so it can reuse governed finance definitions at runtime.
 
-## **Step 12 - Show how App 2 was built in the local project**
+## **Step 10 - Explain how App 2 was built at a high level**
 
 ### **What to click**
 
-- Open the local `FinanceApp` project.
-- Point to `package.json`, `fabric.yaml`, entity files, `FinanceReviewAction.ts`, `data/schema.ts`, `src/services`, `src/components`, and `src/App.tsx`.
+- Open the local `FinanceApp` project folder.
+- Keep the folder tree visible before opening individual files.
 
 ### **What is being shown**
 
-The project structure for the semantic-model-backed app.
+A quick overview of how the app was created before looking at specific files.
 
 ### **What to say**
 
-> "`package.json` still controls local development, build, import and deployment scripts."
+> "At a high level, this app started as a Rayfin project. Rayfin created the application scaffold: the project structure, local development setup, deployment configuration and the pattern for defining SQL-backed entities."
 >
-> "`fabric.yaml` is especially important here because the app must know which Fabric workspace and semantic model to connect to. It is the bridge between the app code and the Fabric assets."
+> "From there, I added the finance scenario: source data, entity definitions, the semantic-model connection, and the React screens for KPIs, review queue and review drawer."
 >
-> "The entity files define SQL-backed data, including source entities and the write-back entity `FinanceReviewAction`. `data/schema.ts` registers them as one app data model."
+> "GitHub Copilot helped with the application code. The useful way to think about it is that I prompted Copilot with the business experience I wanted: a finance review app with governed KPIs, a transaction queue, a drawer, and write-back. Copilot helped generate and refine the React components and service logic, but Rayfin provided the Fabric App structure, deployment workflow and generated data access pattern."
 >
-> "The `src/services` folder shows the two data paths. `semanticFinanceClient.ts` handles semantic-model reads. `reviewActionService.ts` handles Rayfin SQL write-back."
->
-> "The components folder contains the visible UI pieces, such as KPI cards, review queue and review drawer."
+> "So Copilot helped accelerate the coding, while Rayfin and Fabric Apps provided the app framework and Fabric-native plumbing."
 
 ### **Summary**
 
-The App 2 project separates semantic-model reads, Rayfin write-back, configuration and React components.
+App 2 was scaffolded and deployed with Rayfin, while Copilot helped generate the finance-specific React and service code.
 
-## **Step 13 - Explain the full App 2 build flow**
+## **Step 11 - Show the important App 2 project files**
+
+### **What to click**
+
+- Open or point to `package.json`.
+- Open or point to `fabric.yaml`.
+- Open or point to `rayfin.yml` if present.
+- Open or point to entity files, including `FinanceReviewAction.ts`.
+- Open or point to `data/schema.ts`.
+- Open or point to `src/services` and `src/components`.
+
+### **What is being shown**
+
+The most important files that explain how the semantic-model-backed app is wired together.
+
+### **What to say**
+
+> "`package.json` is the project command centre. It defines scripts for local development, build, import and deployment."
+>
+> "`rayfin.yml` is created as part of the Rayfin project setup. It tells Rayfin how the local project maps to the Fabric App and supporting services, including deployment and app configuration."
+>
+> "`fabric.yaml` is especially important in this second app because it connects the app to Fabric assets such as the semantic model. This is where the project can say which workspace and which semantic model the app should use."
+>
+> "The entity files are created or edited during the data-modelling stage. They define SQL-backed data objects. `FinanceReviewAction` is the important write-back entity because it stores the app's workflow state: notes, owners, statuses and next actions."
+>
+> "`data/schema.ts` registers those entities into one application schema. That tells Rayfin these files belong to one complete app data model."
+>
+> "`src/services` shows the two data paths: semantic-model reads and Rayfin SQL write-back. `src/components` contains the visible pieces of the app, such as KPI cards, review queue and review drawer."
+
+### **Summary**
+
+The project files show how Rayfin configuration, Fabric semantic-model connection, SQL entities and React components fit together.
+
+## **Step 12 - Explain the full App 2 build flow**
 
 ### **What to click**
 
@@ -355,7 +336,7 @@ CSV data -> SQL source tables -> Semantic model -> React app -> Rayfin SQL write
 
 App 2 loads data into SQL, models it semantically, then adds a React workflow app over the governed measures.
 
-## **Step 14 - Explain why an app is needed if the semantic model exists**
+## **Step 13 - Explain why an app is needed if the semantic model exists**
 
 ### **What to click**
 
@@ -370,15 +351,17 @@ The difference between a semantic model, a report and an app.
 
 > "A common question is: if the semantic model already exists, why do we need the app? The answer is that the semantic model provides trusted data and logic, but it does not provide a complete workflow experience by itself."
 >
-> "A report is excellent for analysis. An app is better when users need queues, forms, notes, owners, statuses and next actions."
+> "A report is excellent for analysis: slicing, filtering, drilling and explaining what happened. But a report is still mostly a consumption experience. It is not usually where users manage a process."
 >
-> "So I would not position Fabric Apps as replacing Power BI. I would position them as extending governed data into business processes."
+> "A Fabric App is different because it can guide a user through a business workflow. It can provide queues, forms, drawers, notes, owners, statuses, next actions and write-back, while still staying connected to governed Fabric data."
+>
+> "That is why I would not position Fabric Apps as replacing Power BI. I would position them as extending governed data into business processes. The report helps users understand the numbers; the app helps users act on them and record what happened next."
 
 ### **Summary**
 
-The semantic model supplies trusted metrics, while the Fabric App supplies the workflow experience.
+The semantic model supplies trusted metrics, while the Fabric App supplies the workflow experience that reports do not provide.
 
-## **Step 15 - Repeat the difference between the two apps**
+## **Step 14 - Repeat the difference between the two apps**
 
 ### **What to click**
 
@@ -407,7 +390,7 @@ The two architecture patterns side by side.
 
 Use direct SQL when the app owns operational data, and use a semantic model when the app needs governed analytics.
 
-## **Step 16 - End with the Microsoft Data Apps template**
+## **Step 15 - End with the Microsoft Data Apps template**
 
 ### **What to click**
 
@@ -437,7 +420,7 @@ The Data Apps template reinforces the semantic-model-backed pattern for custom a
 - App 1 SQL rows are seeded.
 - App 2 semantic model has been refreshed.
 - App 2 review write-back has been tested.
-- Local project folders are already open or pinned.
+- Local `FinanceApp` project folder is already open or pinned.
 - Microsoft Learn page is available: <https://learn.microsoft.com/en-us/fabric/apps/data-apps-template>.
 - Avoid showing secret-bearing files or tenant-specific credentials.
 
