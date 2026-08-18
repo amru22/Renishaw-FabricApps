@@ -1,12 +1,15 @@
 # Renishaw Fabric Apps Lab
 
-This repository contains a short, customer-ready Microsoft Fabric Apps lab for a synthetic finance scenario. It is designed for a 20-25 minute guided walkthrough where the app is built in advance, then demoed slowly with a clear business narrative.
+This repository contains customer-ready Microsoft Fabric Apps lab documentation for synthetic finance scenarios. The labs support a 30-minute Renishaw finance session with 10-15 minutes of presentation and 15-20 minutes of live demo.
 
 ## Scenario
 
-Renishaw's finance team wants a lightweight internal finance control app that helps finance business partners review cost centre spend, invoice risk, forecast variance, and cash impact without waiting for a full bespoke application project.
+Renishaw's finance team wants lightweight internal finance applications that help finance business partners review cost centre spend, invoice risk, forecast variance, working-capital exposure, and review actions without waiting for a full bespoke application project.
 
-The lab shows how Fabric Apps can turn TypeScript data models into a managed app backend with GraphQL APIs, Fabric authentication, SQL database storage, and static hosting.
+The labs show two Fabric Apps patterns built with Rayfin:
+
+1. A direct-SQL app that reads finance transactions and budget targets from the Fabric Apps managed SQL database.
+1. A hybrid finance app where SQL source data feeds a semantic model, while Rayfin stores operational review actions.
 
 ## Repository structure
 
@@ -17,18 +20,19 @@ Renishaw-FabricApps/
     finance_app_budget_targets.csv
     finance_app_transactions.csv
   labs/
-    01-build-finance-fabric-app.md
-    02-demo-script-finance-fabric-app.md
+    build-renishaw-finance-control-tower.md
+    build-finance-app.md
+    demo-talk-track.md
 ```
 
 ## Lab files
 
 | File | Purpose |
 | --- | --- |
-| `labs/01-build-finance-fabric-app.md` | Prescriptive build guide for preparing the Fabric App before the customer demo. |
-| `labs/02-demo-script-finance-fabric-app.md` | 20-25 minute customer demo script with exact flow, talk track, and feature callouts. |
+| `labs/build-renishaw-finance-control-tower.md` | Build lab for the direct-SQL Renishaw Finance Control Tower app. |
+| `labs/build-finance-app.md` | Build lab for the semantic-model-backed Finance App with Rayfin workflow write-back. |
+| `labs/demo-talk-track.md` | 15-20 minute live demo script covering both apps. |
 | `data/finance_app_transactions.csv` | Synthetic finance transaction data for invoice, accrual, forecast, and capex examples. |
 | `data/finance_app_budget_targets.csv` | Synthetic monthly budget and risk tolerance data by cost centre. |
 
 All data is synthetic and for training/demo use only.
-
