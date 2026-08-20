@@ -294,17 +294,19 @@ The most important files that explain how the semantic-model-backed app is wired
 
 ### **What to say**
 
-> "`package.json` is the project command centre. It defines scripts for local development, build, import and deployment."
+> "`package.json` is the project command centre. It defines scripts for local development, build, import and deployment. It tells you what packages the Fabric App depends on, what version of those packages it uses, and what commands you can run, such as starting the app locally or building/deploying it. In a Rayfin project, this is useful for showing the audience what software/libraries the app is built with."
 >
-> "`rayfin.yml` is created as part of the Rayfin project setup. This is Rayfin-created configuration. It tells Rayfin how the local project maps to the Fabric App and supporting services, including deployment and app configuration."
+> "`rayfin.yml` is created as part of the Rayfin project setup. This is Rayfin-created configuration. It tells Rayfin how the local project maps to the Fabric App and supporting services, including deployment and app configuration.Then you have the important services section. This is where you tell Rayfin which backend services your application uses and how those services should behave. In Microsoft's example, this includes services such as auth, data, storage, and staticHosting.
+
+The auth section configures authentication. For example, it can enable authentication, configure session/token lifetimes, define scopes, configure allowed redirect URLs, and enable authentication methods such as Fabric authentication or password authentication. So this is basically where you configure how users are allowed to sign into the application"
 >
 > "`fabric.yaml` is also configuration rather than visual app code. In this second app, it is especially important because it connects the app to Fabric assets such as the semantic model. This is where the project can say which workspace and which semantic model the app should use."
 >
-> "The entity files belong to the Rayfin data-modelling side. Rayfin gives the pattern for these files, and I create or edit the entities to describe the data the app needs. `FinanceReviewAction` is the important write-back entity because it stores the workflow state: notes, owners, statuses and next actions."
+> "The entity files belong to the Rayfin data-modelling side. Rayfin gives the pattern for these files, and I create or edit the entities to describe the data the app needs. `FinanceReviewAction` is the important write-back entity because it stores the workflow state: notes, owners, statuses and next actions. An entity represents something meaningful to the application, such as a finance review, transaction, forecast or approval. FinanceReviewAction.ts, for example, could define the structure of an action that a finance user can perform. These files are particularly important because Rayfin uses the definitions and decorators in these TypeScript files to understand the application's data model and generate the appropriate backend pieces."
 >
-> "`data/schema.ts` registers those entities into one application schema. That tells Rayfin these files belong to one complete app data model."
+> "`data/schema.ts` registers those entities into one application schema. That tells Rayfin these files belong to one complete app data model. It can define how the different entities relate to each other and what the application's database structure should look like"
 >
-> "The `src` folder is where Copilot was most useful after my prompting. The React components, such as KPI cards, review queue and review drawer, are the visible application experience. The service files also sit in `src`: one handles semantic-model reads, and another handles Rayfin SQL write-back. So the easiest split is: Rayfin created the app scaffold, configuration pattern and data-access framework; Copilot helped me produce the finance-specific React screens and service code."
+> "The `src` folder is where Copilot was most useful after my prompting. The React components, such as KPI cards, review queue and review drawer, are the visible application experience. The service files also sit in `src`: one handles semantic-model reads, and another handles Rayfin SQL write-back. his is where you would expect to find code that actually performs operations or communicates with backend/data services. For example, a service could retrieve information from the connected semantic model or perform an operation when a user submits a finance review. This is essentially where you can point to and say "this is where the application does things."So the easiest split is: Rayfin created the app scaffold, configuration pattern and data-access framework; Copilot helped me produce the finance-specific React screens and service code."
 
 ### **Summary**
 
