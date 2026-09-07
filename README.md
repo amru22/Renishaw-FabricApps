@@ -28,7 +28,6 @@ Renishaw-FabricApps/
   labs/
     build-renishaw-finance-control-tower.md
     build-finance-app.md
-    demo-talk-track.md
 ```
 
 ## Lab files
@@ -37,7 +36,6 @@ Renishaw-FabricApps/
 | --- | --- |
 | `labs/build-renishaw-finance-control-tower.md` | Build lab for the direct-SQL Renishaw Finance Control Tower app. |
 | `labs/build-finance-app.md` | Build lab for the semantic-model-backed Finance App with Rayfin workflow write-back. |
-| `labs/demo-talk-track.md` | 15-20 minute live demo script covering both apps. |
 | `data/finance_app_transactions.csv` | Synthetic finance transaction data for invoice, accrual, forecast, and capex examples. |
 | `data/finance_app_budget_targets.csv` | Synthetic monthly budget and risk tolerance data by cost centre. |
 | `data/finance_app_semantic_model/*.csv` | Star-schema CSV source files for the Finance App semantic-model lab. |
